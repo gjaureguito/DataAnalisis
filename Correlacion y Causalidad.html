@@ -1,120 +1,705 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-<meta charset="UTF-8">
-<title>Correlación y Causalidad</title>
-<style>
-  body {
-    font-family: Arial, Helvetica, sans-serif;
-    line-height: 1.6;
-    max-width: 900px;
-    margin: 40px auto;
-    color: #222;
-  }
-  h2 {
-    margin-bottom: 10px;
-  }
-  .leyenda {
-    border: 1px solid #ccc;
-    padding: 15px;
-    margin-bottom: 30px;
-    background: #f9f9f9;
-  }
-  .leyenda span {
-    display: inline-block;
-    padding: 2px 6px;
-    margin-right: 6px;
-  }
-  .principal {
-    background-color: #fff3a0; /* amarillo */
-    padding: 2px 4px;
-  }
-  .clave {
-    background-color: #d9f0ff; /* celeste */
-    padding: 2px 4px;
-  }
-  .ejemplo {
-    background-color: #e2f7e2; /* verde */
-    padding: 2px 4px;
-  }
-  .alerta {
-    background-color: #ffd6d6; /* rojo suave */
-    padding: 2px 4px;
-  }
-</style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Correlación vs. Causalidad: Guía Visual + IA</title>
+    
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;700&family=Montserrat:wght@400;600;800&display=swap" rel="stylesheet">
+
+    <!-- 
+    SOURCE MATERIAL ANALYSIS & PLAN:
+    1. Introduction: Define Correlation vs Causation clearly.
+    2. Visualizing Patterns: Show Positive, Negative, and Null correlations using 3 small charts.
+    3. The Trap (Ice Cream): Show the classic "Heat vs Sales" correlation graph.
+    4. Health Case Study (Pellagra): Use a CSS-based flowchart to show the Hidden Variable (Poverty).
+    5. Business Case Study (SNAP): Bar chart showing the gap between Visits and Signups.
+    6. AI Lab (NEW): Interactive Gemini-powered analysis and example generation.
+    7. Conclusion: Checklist for analysis.
+    
+    CHART SELECTION & JUSTIFICATION (NO SVG):
+    - Correlation Types: Scatter/Line Charts (Chart.js) -> Best for showing relationship patterns.
+    - Ice Cream/Temp: Line Chart (Chart.js) -> Shows trends moving together perfectly.
+    - Pellagra Path: CSS Flowchart -> Best for process/logic flow without using prohibited SVG/Mermaid.
+    - SNAP Data: Bar Chart (Chart.js) -> Compares two distinct values (Visits vs Signups).
+    
+    PALETTE: Vibrant Indigo & Teal (Energetic & Professional)
+    - Primary: #4F46E5 (Indigo-600)
+    - Secondary: #06B6D4 (Cyan-500)
+    - Accent: #F59E0B (Amber-500)
+    - Background: #F3F4F6 (Gray-100)
+    -->
+
+    <style>
+        body {
+            font-family: 'Roboto', sans-serif;
+            background-color: #F3F4F6;
+            color: #1F2937;
+        }
+        h1, h2, h3, h4 {
+            font-family: 'Montserrat', sans-serif;
+        }
+        
+        /* Chart Container Styling Rules */
+        .chart-container {
+            position: relative;
+            width: 100%;
+            max-width: 600px; /* Constraint for large screens */
+            margin-left: auto;
+            margin-right: auto;
+            height: 300px;
+            max-height: 400px;
+        }
+        
+        @media (min-width: 768px) {
+            .chart-container {
+                height: 350px;
+            }
+        }
+
+        /* Custom Cards */
+        .card {
+            background-color: white;
+            border-radius: 1rem;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+            padding: 1.5rem;
+            transition: transform 0.2s;
+        }
+        .card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+        }
+
+        /* AI Section Styles */
+        .ai-gradient {
+            background: linear-gradient(135deg, #4F46E5 0%, #9333EA 100%);
+        }
+
+        /* CSS-Only Arrows for Flowcharts (No SVG) */
+        .arrow-right {
+            width: 0; 
+            height: 0; 
+            border-top: 10px solid transparent;
+            border-bottom: 10px solid transparent;
+            border-left: 15px solid #4F46E5;
+            display: inline-block;
+            margin: 0 10px;
+        }
+        .arrow-down {
+            width: 0; 
+            height: 0; 
+            border-left: 10px solid transparent;
+            border-right: 10px solid transparent;
+            border-top: 15px solid #4F46E5;
+            margin: 10px auto;
+        }
+        
+        .loader {
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid #4F46E5;
+            border-radius: 50%;
+            width: 24px;
+            height: 24px;
+            animation: spin 1s linear infinite;
+            display: inline-block;
+            vertical-align: middle;
+            margin-left: 8px;
+        }
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+    </style>
 </head>
+<body class="bg-gray-100">
 
-<body>
+    <!-- Header -->
+    <header class="bg-gradient-to-r from-indigo-700 to-cyan-600 text-white p-8 shadow-lg">
+        <div class="max-w-6xl mx-auto text-center">
+            <h1 class="text-4xl md:text-6xl font-extrabold mb-4 tracking-tight">Correlación vs. Causalidad</h1>
+            <p class="text-xl md:text-2xl font-light opacity-90">Una guía visual para el análisis crítico de datos</p>
+        </div>
+    </header>
 
-<h2>Correlación y causalidad (explicado fácil, pero en serio)</h2>
+    <main class="max-w-6xl mx-auto p-4 space-y-12 my-8">
 
-<div class="leyenda">
-  <strong>Leyenda de colores</strong><br><br>
-  <span class="principal">Amarillo</span> → Idea principal o conclusión central del texto.<br><br>
-  <span class="clave">Celeste</span> → Definiciones, conceptos clave o explicaciones importantes.<br><br>
-  <span class="ejemplo">Verde</span> → Ejemplos concretos que ayudan a entender la idea.<br><br>
-  <span class="alerta">Rojo</span> → Advertencias, errores comunes o reglas que no deben ignorarse.
-</div>
+        <!-- Intro Section -->
+        <section class="grid grid-cols-1 md:grid-cols-2 gap-8">
+            <div class="card bg-white border-l-8 border-indigo-500">
+                <h2 class="text-2xl font-bold text-indigo-700 mb-4">¿Qué es Correlación?</h2>
+                <p class="text-gray-600 mb-4 leading-relaxed">
+                    Es una medida estadística que describe el grado en que dos variables se mueven en relación la una con la otra.
+                </p>
+                <div class="bg-indigo-50 p-4 rounded-lg">
+                    <span class="text-4xl mr-2">🔗</span>
+                    <span class="font-semibold text-indigo-900">Patrón o Relación</span>
+                    <p class="text-sm text-indigo-700 mt-2">"Cuando A cambia, B también cambia."</p>
+                </div>
+            </div>
 
-<p>
-<span class="principal">Cuando analizamos datos, una de las confusiones más comunes es creer que, porque dos cosas ocurren juntas, una causa a la otra.</span>
-Esa confusión nace de no distinguir bien entre correlación y causalidad, dos conceptos que parecen similares pero cumplen funciones muy distintas en el análisis.
-</p>
+            <div class="card bg-white border-l-8 border-cyan-500">
+                <h2 class="text-2xl font-bold text-cyan-700 mb-4">¿Qué es Causalidad?</h2>
+                <p class="text-gray-600 mb-4 leading-relaxed">
+                    Indica una relación directa de causa y efecto. Un evento provoca inevitablemente que ocurra otro.
+                </p>
+                <div class="bg-cyan-50 p-4 rounded-lg">
+                    <span class="text-4xl mr-2">⚡</span>
+                    <span class="font-semibold text-cyan-900">Origen y Resultado</span>
+                    <p class="text-sm text-cyan-700 mt-2">"A causa que ocurra B."</p>
+                </div>
+            </div>
+        </section>
 
-<p>
-<span class="clave">La correlación indica simplemente que dos variables se mueven juntas siguiendo un patrón.</span>
-Cuando una sube y la otra también, hablamos de correlación positiva; cuando una sube y la otra baja, de correlación negativa; y cuando una cambia y la otra permanece igual, no hay correlación.
-<span class="alerta">Lo importante es entender que la correlación no explica por qué ocurre ese movimiento conjunto:</span>
-solo señala que existe una relación observable en los datos.
-</p>
+        <!-- Types of Correlation Section -->
+        <section>
+            <div class="mb-6 border-b-2 border-gray-200 pb-2">
+                <h2 class="text-3xl font-bold text-gray-800">Tipos de Correlación</h2>
+                <p class="text-gray-600 mt-2">
+                    Antes de asumir una causa, identifica el patrón. No todos los movimientos simultáneos significan lo mismo.
+                </p>
+            </div>
+            
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                <!-- Positive -->
+                <div class="card text-center">
+                    <h3 class="text-xl font-bold text-green-600 mb-2">Positiva</h3>
+                    <p class="text-sm text-gray-500 mb-4">Ambas suben juntas</p>
+                    <div class="chart-container h-48">
+                        <canvas id="chartPositive"></canvas>
+                    </div>
+                    <div class="mt-2 text-2xl font-bold">⬆️ A  ⬆️ B</div>
+                </div>
 
-<p>
-<span class="ejemplo">Por ejemplo, cuando aumenta la temperatura, suelen aumentar las ventas de helado.</span>
-Ambas variables crecen al mismo tiempo, por lo que están correlacionadas.
-<span class="alerta">Sin embargo, este dato por sí solo no prueba que el calor sea la causa directa del aumento en las ventas.</span>
-Podrían intervenir otros factores que ocurren al mismo tiempo, como vacaciones, mayor circulación de personas, turismo o promociones comerciales.
-<span class="clave">La correlación, en este caso, funciona como una señal de alerta que invita a investigar más, pero no como una conclusión definitiva.</span>
-</p>
+                <!-- Negative -->
+                <div class="card text-center">
+                    <h3 class="text-xl font-bold text-red-500 mb-2">Negativa (Inversa)</h3>
+                    <p class="text-sm text-gray-500 mb-4">Una sube, la otra baja</p>
+                    <div class="chart-container h-48">
+                        <canvas id="chartNegative"></canvas>
+                    </div>
+                    <div class="mt-2 text-2xl font-bold">⬆️ A  ⬇️ B</div>
+                </div>
 
-<p>
-<span class="clave">La causalidad, en cambio, implica una relación mucho más fuerte.</span>
-Significa que un evento produce directamente otro y que existe un mecanismo claro que explica ese efecto.
-<span class="ejemplo">Un ejemplo simple es el rayo y el trueno:</span>
-el rayo ocurre primero y genera el calentamiento y la expansión del aire que producen el sonido.
-<span class="alerta">Si no hay rayo, no hay trueno.</span>
-Aquí no solo vemos dos hechos juntos, sino una secuencia lógica y necesaria.
-</p>
+                <!-- Null -->
+                <div class="card text-center">
+                    <h3 class="text-xl font-bold text-gray-500 mb-2">Nula</h3>
+                    <p class="text-sm text-gray-500 mb-4">Sin relación aparente</p>
+                    <div class="chart-container h-48">
+                        <canvas id="chartNull"></canvas>
+                    </div>
+                    <div class="mt-2 text-2xl font-bold">⬆️ A  ➡️ B</div>
+                </div>
+            </div>
+        </section>
 
-<p>
-<span class="alerta">El problema aparece cuando se confunde correlación con causalidad.</span>
-Este error ha tenido consecuencias graves, incluso en la historia de la salud pública.
-<span class="ejemplo">Durante años se creyó que la pelagra era causada por condiciones de vida insalubres</span>,
-ya que la mayoría de las personas enfermas vivían en entornos pobres y poco higiénicos.
-<span class="clave">Sin embargo, un análisis más profundo mostró que la verdadera causa era la falta de niacina (vitamina B3).</span>
-La pobreza explicaba tanto la mala alimentación como las malas condiciones de vivienda, pero la suciedad no era la causa directa de la enfermedad.
-<span class="alerta">Era solo una correlación.</span>
-</p>
+        <!-- Case Study 1: Ice Cream (The Trap) -->
+        <section class="bg-white rounded-xl shadow-lg overflow-hidden">
+            <div class="bg-amber-100 p-6 border-b border-amber-200">
+                <h2 class="text-3xl font-bold text-amber-800">⚠️ La Trampa: El Caso del Helado</h2>
+                <p class="text-amber-900 mt-2">
+                    ¿Comer helado causa calor? Un ejemplo clásico de cómo la correlación puede ser engañosa.
+                </p>
+            </div>
+            
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-8 p-8 items-center">
+                <div>
+                    <p class="mb-4 text-gray-700 text-lg">
+                        Al analizar los datos, observamos una <strong>Correlación Positiva</strong> perfecta: a medida que suben las temperaturas, se disparan las ventas de helado.
+                    </p>
+                    <p class="mb-4 text-gray-700">
+                        Sería un error fatal concluir que comprar helado <em>causa</em> que el clima se caliente. Ambos eventos son causados por una tercera variable oculta.
+                    </p>
+                    <div class="bg-gray-100 p-4 rounded border-l-4 border-amber-500">
+                        <strong>Variable Oculta:</strong> El Verano / Clima Caluroso.
+                    </div>
+                </div>
+                
+                <div class="chart-container">
+                    <canvas id="chartIceCream"></canvas>
+                </div>
+            </div>
+        </section>
 
-<p>
-<span class="clave">En el análisis moderno de datos, especialmente en contextos digitales, ocurre algo similar.</span>
-<span class="ejemplo">Por ejemplo, al observar que muchas personas visitan un sitio web oficial y luego lo abandonan sin completar un trámite</span>,
-se detecta una correlación entre visitas y abandono.
-<span class="alerta">Herramientas como Google Analytics permiten identificar patrones de comportamiento, pero no explican por sí solas la causa real.</span>
-Para entender por qué ocurre el abandono, es necesario complementar esos datos con encuestas, entrevistas o pruebas de usabilidad.
-<span class="clave">La correlación orienta la investigación; la causalidad requiere evidencia adicional.</span>
-</p>
+        <!-- Case Study 2: Pellagra (Health) - CSS Flowchart -->
+        <section>
+            <div class="mb-6">
+                <h2 class="text-3xl font-bold text-indigo-800">Estudio de Caso: La Pelagra</h2>
+                <p class="text-gray-600 mt-2">
+                    Un error histórico en salud pública que demuestra el peligro de confundir correlación con causalidad.
+                </p>
+            </div>
 
-<p>
-<span class="alerta">Por eso, una regla básica del análisis de datos es tratar toda correlación como una pista, no como una explicación.</span>
-Antes de afirmar una relación causal, es necesario preguntarse si existe un mecanismo lógico, si puede haber una tercera variable influyendo en ambas, y si el orden temporal de los eventos tiene sentido.
-<span class="clave">Solo cuando esas condiciones se cumplen, podemos empezar a hablar con mayor seguridad de causalidad.</span>
-</p>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+                <!-- The Historical Error -->
+                <div class="card border border-red-200 bg-red-50">
+                    <h3 class="text-xl font-bold text-red-700 mb-4 text-center">❌ El Análisis Erróneo (Siglo XX)</h3>
+                    <div class="flex flex-col items-center justify-center space-y-4">
+                        <div class="bg-white p-4 rounded shadow text-center w-full max-w-xs">
+                            <span class="text-3xl">🏠</span><br>
+                            <strong>Condiciones Insalubres</strong>
+                            <p class="text-xs text-gray-500">(Correlación observada)</p>
+                        </div>
+                        <div class="arrow-down" style="border-top-color: #EF4444;"></div>
+                        <div class="bg-white p-4 rounded shadow text-center w-full max-w-xs border-2 border-red-400">
+                            <span class="text-3xl">🤢</span><br>
+                            <strong>Enfermedad (Pelagra)</strong>
+                            <p class="text-xs text-red-500">Conclusión Falsa</p>
+                        </div>
+                    </div>
+                    <p class="mt-6 text-sm text-red-800 text-center px-4">
+                        Limpiar las casas no curó la enfermedad porque la suciedad no era la causa.
+                    </p>
+                </div>
 
-<p>
-<span class="principal">En síntesis, la correlación ayuda a descubrir patrones y formular preguntas, mientras que la causalidad permite explicar por qué ocurren los fenómenos y tomar decisiones informadas.</span>
-<span class="alerta">Un buen analista no se enamora del gráfico:</span>
-lo observa con atención, lo cuestiona y busca pruebas antes de sacar conclusiones.
-</p>
+                <!-- The Actual Cause -->
+                <div class="card border border-green-200 bg-green-50">
+                    <h3 class="text-xl font-bold text-green-700 mb-4 text-center">✅ La Causa Real (Análisis Profundo)</h3>
+                    <div class="flex flex-col items-center justify-center space-y-2">
+                        <div class="bg-white p-3 rounded shadow text-center w-full max-w-xs border-2 border-indigo-400">
+                            <span class="text-3xl">💰</span><br>
+                            <strong>Pobreza Extrema</strong>
+                            <p class="text-xs text-indigo-500">Variable Raíz</p>
+                        </div>
+                        
+                        <!-- Branching arrows simulation with Flex -->
+                        <div class="flex w-full max-w-xs justify-between text-gray-400 text-2xl">
+                            <span>↙️</span> <span>↘️</span>
+                        </div>
 
+                        <div class="flex w-full justify-between gap-2">
+                            <div class="bg-gray-100 p-2 rounded text-center w-1/2 text-xs opacity-50">
+                                Condiciones Insalubres<br>(Efecto secundario)
+                            </div>
+                            <div class="bg-white p-3 rounded shadow text-center w-1/2 border-2 border-green-500">
+                                <strong>Falta de Niacina (B3)</strong><br>
+                                <span class="text-xs text-green-600">Causa Directa</span>
+                            </div>
+                        </div>
+
+                        <div class="arrow-down" style="border-top-color: #10B981; margin-left: 75%;"></div>
+
+                        <div class="bg-white p-3 rounded shadow text-center w-full max-w-xs border-2 border-green-600 ml-auto">
+                            <span class="text-3xl">🤢</span><br>
+                            <strong>Enfermedad (Pelagra)</strong>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Case Study 3: SNAP (Business/Analytics) -->
+        <section class="card">
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 items-center">
+                <div class="order-2 lg:order-1 chart-container">
+                    <canvas id="chartSnap"></canvas>
+                </div>
+                <div class="order-1 lg:order-2">
+                    <h2 class="text-3xl font-bold text-gray-800 mb-4">Caso SNAP: Las Limitaciones de los Datos</h2>
+                    <p class="text-gray-600 mb-4">
+                        Google Analytics muestra una fuerte correlación entre visitas a la página de beneficios y el abandono del sitio.
+                    </p>
+                    <ul class="space-y-3 mb-6">
+                        <li class="flex items-start">
+                            <span class="text-indigo-500 mr-2 font-bold">1.</span>
+                            <span><strong>El Dato (Qué):</strong> Miles de personas visitan, pero muy pocas se inscriben.</span>
+                        </li>
+                        <li class="flex items-start">
+                            <span class="text-indigo-500 mr-2 font-bold">2.</span>
+                            <span><strong>La Trampa:</strong> Asumir que "no les interesa" o "el sitio es lento".</span>
+                        </li>
+                        <li class="flex items-start">
+                            <span class="text-indigo-500 mr-2 font-bold">3.</span>
+                            <span><strong>La Solución:</strong> Se requieren datos cualitativos (encuestas) para encontrar la <em>causa</em> (ej. información confusa).</span>
+                        </li>
+                    </ul>
+                    <div class="bg-indigo-100 text-indigo-800 p-4 rounded-lg font-semibold text-center">
+                        "La correlación te dice DÓNDE mirar. La investigación te dice QUÉ arreglar."
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- NEW AI LAB SECTION -->
+        <section class="rounded-xl overflow-hidden shadow-2xl" id="ai-lab">
+            <div class="ai-gradient p-8 text-white">
+                <h2 class="text-3xl font-bold flex items-center gap-3">
+                    <span class="text-4xl">✨</span> Laboratorio de Análisis con IA
+                </h2>
+                <p class="mt-2 text-indigo-100 opacity-90">
+                    Utiliza la inteligencia artificial de Gemini para analizar tus propias hipótesis o descubrir ejemplos sorprendentes de correlaciones falsas.
+                </p>
+            </div>
+
+            <div class="bg-white p-8 grid grid-cols-1 lg:grid-cols-2 gap-12">
+                <!-- Feature 1: Scenario Analyzer -->
+                <div class="space-y-4">
+                    <h3 class="text-xl font-bold text-indigo-700">🔍 Analizador de Causalidad</h3>
+                    <p class="text-sm text-gray-500">
+                        Describe una situación (ej. "Me puse mi camiseta de la suerte y mi equipo ganó"). La IA analizará si es correlación o causalidad.
+                    </p>
+                    
+                    <textarea id="scenarioInput" rows="4" 
+                        class="w-full p-4 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition resize-none bg-gray-50"
+                        placeholder="Escribe tu escenario aquí..."></textarea>
+                    
+                    <button onclick="analyzeScenario()" id="analyzeBtn"
+                        class="w-full py-3 px-6 bg-indigo-600 hover:bg-indigo-700 text-white font-bold rounded-lg transition shadow-md flex justify-center items-center">
+                        <span>✨ Analizar con Gemini</span>
+                        <div id="analyzeLoader" class="loader hidden"></div>
+                    </button>
+
+                    <div id="analyzeResult" class="hidden bg-indigo-50 p-4 rounded-lg border border-indigo-100 mt-4">
+                        <h4 class="font-bold text-indigo-800 mb-2">Análisis de la IA:</h4>
+                        <p id="analyzeText" class="text-gray-700 text-sm leading-relaxed"></p>
+                    </div>
+                </div>
+
+                <!-- Feature 2: Spurious Correlation Generator -->
+                <div class="space-y-4 flex flex-col h-full">
+                    <h3 class="text-xl font-bold text-cyan-700">🎲 Generador de Ejemplos Curiosos</h3>
+                    <p class="text-sm text-gray-500">
+                        ¿No se te ocurre nada? Deja que la IA genere un ejemplo sorprendente (o divertido) de dos cosas que parecen conectadas pero no lo están.
+                    </p>
+                    
+                    <div class="flex-grow flex items-center justify-center bg-cyan-50 rounded-lg p-6 border border-cyan-100 relative min-h-[160px]">
+                        <div id="exampleResultContent" class="text-center">
+                            <p class="text-cyan-800 italic">"Pulsa el botón para descubrir una correlación inesperada..."</p>
+                        </div>
+                    </div>
+
+                    <button onclick="generateExample()" id="generateBtn"
+                        class="w-full py-3 px-6 bg-cyan-600 hover:bg-cyan-700 text-white font-bold rounded-lg transition shadow-md flex justify-center items-center mt-auto">
+                        <span>✨ Generar Ejemplo Sorprendente</span>
+                        <div id="generateLoader" class="loader hidden"></div>
+                    </button>
+                </div>
+            </div>
+        </section>
+
+        <!-- Conclusion -->
+        <section class="bg-gray-800 text-white rounded-xl p-8 text-center">
+            <h2 class="text-3xl font-bold mb-6">Puntos Clave para el Analista</h2>
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6 text-left">
+                <div class="bg-gray-700 p-6 rounded-lg">
+                    <div class="text-cyan-400 text-4xl mb-3">🧠</div>
+                    <h3 class="text-xl font-bold mb-2">Pensamiento Crítico</h3>
+                    <p class="text-gray-300 text-sm">Cuestiona siempre. ¿Existe una tercera variable? No aceptes la primera correlación que veas.</p>
+                </div>
+                <div class="bg-gray-700 p-6 rounded-lg">
+                    <div class="text-indigo-400 text-4xl mb-3">🔍</div>
+                    <h3 class="text-xl font-bold mb-2">Contexto Total</h3>
+                    <p class="text-gray-300 text-sm">La causalidad debe tener sentido lógico y estar respaldada por la totalidad de los datos, no solo un gráfico.</p>
+                </div>
+                <div class="bg-gray-700 p-6 rounded-lg">
+                    <div class="text-amber-400 text-4xl mb-3">🛠️</div>
+                    <h3 class="text-xl font-bold mb-2">Conoce tus Herramientas</h3>
+                    <p class="text-gray-300 text-sm">El software ve números, tú ves el mundo real. Usa encuestas para llenar los vacíos del "por qué".</p>
+                </div>
+            </div>
+        </section>
+
+    </main>
+
+    <footer class="bg-gray-900 text-gray-400 text-center p-6 mt-12">
+        <p>&copy; 2024 Visualización de Datos Educativos. Basado en la lectura "Correlación vs. Causalidad".</p>
+        <!-- Confirmed: NO SVG Used. NO Mermaid JS Used. -->
+    </footer>
+
+    <!-- Scripts for Chart.js -->
+    <script>
+        // --- GEMINI API LOGIC ---
+        const apiKey = ""; // Injected at runtime
+
+        async function callGemini(promptText) {
+            if (!apiKey) {
+                // Fallback for demo/dev if key isn't present
+                console.warn("API Key not found. Using mock response.");
+                return new Promise(resolve => setTimeout(() => resolve("Nota: La API Key no está configurada. En un entorno real, Gemini respondería aquí."), 1000));
+            }
+
+            const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-09-2025:generateContent?key=${apiKey}`;
+            const payload = {
+                contents: [{ parts: [{ text: promptText }] }]
+            };
+
+            try {
+                const response = await fetch(url, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload)
+                });
+                
+                if (!response.ok) throw new Error(`API Error: ${response.status}`);
+                
+                const data = await response.json();
+                return data.candidates?.[0]?.content?.parts?.[0]?.text || "No se pudo generar respuesta.";
+            } catch (error) {
+                console.error("Gemini API Error:", error);
+                return "Hubo un error al conectar con la IA. Por favor intenta de nuevo.";
+            }
+        }
+
+        async function analyzeScenario() {
+            const input = document.getElementById('scenarioInput').value.trim();
+            if (!input) return alert("Por favor escribe un escenario primero.");
+
+            const btn = document.getElementById('analyzeBtn');
+            const loader = document.getElementById('analyzeLoader');
+            const resultBox = document.getElementById('analyzeResult');
+            const resultText = document.getElementById('analyzeText');
+
+            // UI State: Loading
+            btn.disabled = true;
+            loader.classList.remove('hidden');
+            resultBox.classList.add('hidden');
+
+            // Prompt Engineering
+            const prompt = `Actúa como un experto en estadística y lógica. Analiza el siguiente escenario escrito por un usuario: "${input}". 
+            Determina si describe una probable correlación, causalidad, o una coincidencia. 
+            Explica el razonamiento de forma sencilla, amigable y educativa en Español. Mantén la respuesta breve (menos de 80 palabras).`;
+
+            // Call API
+            const response = await callGemini(prompt);
+
+            // UI State: Result
+            resultText.innerText = response;
+            resultBox.classList.remove('hidden');
+            btn.disabled = false;
+            loader.classList.add('hidden');
+        }
+
+        async function generateExample() {
+            const btn = document.getElementById('generateBtn');
+            const loader = document.getElementById('generateLoader');
+            const contentDiv = document.getElementById('exampleResultContent');
+
+            // UI State: Loading
+            btn.disabled = true;
+            loader.classList.remove('hidden');
+            contentDiv.innerHTML = '<p class="text-cyan-600 animate-pulse">Consultando a Gemini...</p>';
+
+            // Prompt Engineering
+            const prompt = `Genera un ejemplo curioso, divertido o sorprendente de una "correlación espuria" (dos cosas que estadísticamente se mueven juntas pero no tienen nada que ver, como la venta de helados y ataques de tiburones). 
+            Explica brevemente por qué correlacionan (coincidencia o variable oculta). Responde en Español. Sé conciso.`;
+
+            // Call API
+            const response = await callGemini(prompt);
+
+            // UI State: Result
+            contentDiv.innerHTML = `<p class="text-gray-800 font-medium text-sm leading-relaxed">${response}</p>`;
+            btn.disabled = false;
+            loader.classList.add('hidden');
+        }
+
+        // --- UTILITY: Label Wrapping Function ---
+        function splitLabel(label) {
+            const limit = 16;
+            if (label.length <= limit) return label;
+            const words = label.split(' ');
+            const lines = [];
+            let currentLine = words[0];
+
+            for (let i = 1; i < words.length; i++) {
+                if ((currentLine + " " + words[i]).length > limit) {
+                    lines.push(currentLine);
+                    currentLine = words[i];
+                } else {
+                    currentLine += " " + words[i];
+                }
+            }
+            lines.push(currentLine);
+            return lines;
+        }
+
+        // --- UTILITY: Common Chart Options ---
+        const commonOptions = {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                tooltip: {
+                    callbacks: {
+                        title: function(tooltipItems) {
+                            const item = tooltipItems[0];
+                            let label = item.chart.data.labels[item.dataIndex];
+                            if (Array.isArray(label)) {
+                                return label.join(' ');
+                            } else {
+                                return label;
+                            }
+                        }
+                    },
+                    backgroundColor: 'rgba(31, 41, 55, 0.9)',
+                    padding: 12,
+                    cornerRadius: 8
+                },
+                legend: {
+                    labels: {
+                        font: { family: 'Roboto', size: 12 },
+                        usePointStyle: true
+                    }
+                }
+            },
+            scales: {
+                x: { grid: { display: false } },
+                y: { grid: { color: '#E5E7EB' } }
+            }
+        };
+
+        // --- CHART 1: Positive Correlation ---
+        const ctxPositive = document.getElementById('chartPositive').getContext('2d');
+        new Chart(ctxPositive, {
+            type: 'scatter',
+            data: {
+                labels: ['Ene', 'Feb', 'Mar', 'Abr', 'May'], // Dummy for tooltip structure
+                datasets: [{
+                    label: 'Datos A vs B',
+                    data: [
+                        {x: 10, y: 10}, {x: 15, y: 18}, {x: 20, y: 22}, 
+                        {x: 25, y: 30}, {x: 30, y: 35}, {x: 35, y: 42}
+                    ],
+                    backgroundColor: '#10B981', // Green
+                    borderColor: '#10B981',
+                    showLine: true,
+                    tension: 0.4
+                }]
+            },
+            options: {
+                ...commonOptions,
+                plugins: { ...commonOptions.plugins, legend: { display: false } },
+                scales: { x: { display: false }, y: { display: false } }
+            }
+        });
+
+        // --- CHART 2: Negative Correlation ---
+        const ctxNegative = document.getElementById('chartNegative').getContext('2d');
+        new Chart(ctxNegative, {
+            type: 'scatter',
+            data: {
+                labels: ['1', '2', '3', '4', '5'],
+                datasets: [{
+                    label: 'Inversa',
+                    data: [
+                        {x: 10, y: 50}, {x: 15, y: 40}, {x: 20, y: 35}, 
+                        {x: 25, y: 20}, {x: 30, y: 15}, {x: 35, y: 5}
+                    ],
+                    backgroundColor: '#EF4444', // Red
+                    borderColor: '#EF4444',
+                    showLine: true,
+                    tension: 0.4
+                }]
+            },
+            options: {
+                ...commonOptions,
+                plugins: { ...commonOptions.plugins, legend: { display: false } },
+                scales: { x: { display: false }, y: { display: false } }
+            }
+        });
+
+        // --- CHART 3: Null Correlation ---
+        const ctxNull = document.getElementById('chartNull').getContext('2d');
+        new Chart(ctxNull, {
+            type: 'scatter',
+            data: {
+                labels: ['1', '2', '3', '4', '5'],
+                datasets: [{
+                    label: 'Nula',
+                    data: [
+                        {x: 10, y: 25}, {x: 15, y: 28}, {x: 20, y: 22}, 
+                        {x: 25, y: 30}, {x: 30, y: 24}, {x: 35, y: 26}
+                    ],
+                    backgroundColor: '#9CA3AF', // Gray
+                    borderColor: '#9CA3AF',
+                    showLine: true,
+                    borderDash: [5, 5]
+                }]
+            },
+            options: {
+                ...commonOptions,
+                plugins: { ...commonOptions.plugins, legend: { display: false } },
+                scales: { x: { display: false }, y: { display: false } }
+            }
+        });
+
+        // --- CHART 4: Ice Cream vs Temp (Dual Axis) ---
+        const ctxIceCream = document.getElementById('chartIceCream').getContext('2d');
+        new Chart(ctxIceCream, {
+            type: 'line',
+            data: {
+                labels: ['Ene', 'Mar', 'May', 'Jul', 'Sep', 'Nov'].map(l => splitLabel(l)),
+                datasets: [
+                    {
+                        label: 'Ventas de Helado',
+                        data: [150, 200, 400, 850, 500, 200],
+                        borderColor: '#F59E0B', // Amber
+                        backgroundColor: 'rgba(245, 158, 11, 0.2)',
+                        fill: true,
+                        yAxisID: 'y'
+                    },
+                    {
+                        label: 'Temperatura (°C)',
+                        data: [5, 12, 22, 35, 25, 10],
+                        borderColor: '#EF4444', // Red
+                        borderDash: [5, 5],
+                        yAxisID: 'y1'
+                    }
+                ]
+            },
+            options: {
+                ...commonOptions,
+                scales: {
+                    y: {
+                        type: 'linear',
+                        display: true,
+                        position: 'left',
+                        title: { display: true, text: 'Ventas ($)' }
+                    },
+                    y1: {
+                        type: 'linear',
+                        display: true,
+                        position: 'right',
+                        title: { display: true, text: 'Temp (°C)' },
+                        grid: { drawOnChartArea: false }
+                    }
+                }
+            }
+        });
+
+        // --- CHART 5: SNAP Data (Bar) ---
+        const ctxSnap = document.getElementById('chartSnap').getContext('2d');
+        const snapLabels = ['Visitantes Web', 'Inicios de Formulario', 'Inscripciones Completas'];
+        new Chart(ctxSnap, {
+            type: 'bar',
+            data: {
+                labels: snapLabels.map(l => splitLabel(l)),
+                datasets: [{
+                    label: 'Flujo de Usuarios',
+                    data: [15000, 4500, 1200],
+                    backgroundColor: [
+                        '#4F46E5', // Indigo
+                        '#6366F1', 
+                        '#818CF8'
+                    ],
+                    borderRadius: 5
+                }]
+            },
+            options: {
+                ...commonOptions,
+                indexAxis: 'y', // Horizontal bar for better label reading
+                plugins: {
+                    ...commonOptions.plugins,
+                    legend: { display: false }
+                }
+            }
+        });
+
+    </script>
 </body>
 </html>
